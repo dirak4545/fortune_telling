@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: sandbar
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:mysql://db:3306/fortune_telling?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      - DB_USERNAME=${DB_USERNAME:-fortune_user}
+      - DB_PASSWORD=${DB_PASSWORD:-fortune_password}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY:-your_api_key}
+    depends_on:
+      - db
+    networks:
+      - fortune-network
+
+  db:
+    container_name: fortune-mysql
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=fortune_telling
+      - MYSQL_USER=${DB_USERNAME:-fortune_user}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-fortune_password}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-rootpassword}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - fortune-network
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+networks:
+  fortune-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
