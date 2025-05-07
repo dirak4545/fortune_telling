@@ -40,8 +40,11 @@ services:
       - MYSQL_USER=${DB_USERNAME:-fortune_user}
       - MYSQL_PASSWORD=${DB_PASSWORD:-fortune_password}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-rootpassword}
+        # 중요: MySQL이 모든 호스트의 연결을 허용하도록 설정
+      - MYSQL_ROOT_HOST=%
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
     networks:
       - fortune-network
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
