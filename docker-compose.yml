@@ -3,17 +3,20 @@ version: '3.8'
 services:
   nginx:
     container_name: fortune_nginx
-    image : nginx:latest
+    image: nginx:latest
     ports:
       - "80:80"
-#      - "443:443" # HTTPS
+      - "443:443"  # HTTPS 포트 활성화
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-#      - ./nginx/ssl:/etc/nginx/ssl  # SSL 인증서 (필요한 경우)
+      - ./nginx/ssl:/etc/nginx/ssl  # SSL 인증서 볼륨
+      - ./certbot/conf:/etc/letsencrypt  # Certbot 인증서 저장 위치
+      - ./certbot/www:/var/www/certbot  # Certbot 검증 파일 위치
     depends_on:
       - app
     networks:
       - fortune-network
+      -
   app:
     container_name: fortune_telling
     build: .
@@ -60,6 +63,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - fortune-network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks:
+      - fortune-network
+    depends_on:
+      - nginx
 
 networks:
   fortune-network:
