@@ -57,22 +57,22 @@ jobs:
             # 기존 컨테이너 중지 및 제거
             docker stop fortune-app || true
             docker rm fortune-app || true
-            
+
             # 새 이미지 다운로드
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fortune-telling:latest
-            
+
             # .env 파일 생성 (환경 변수 설정)
             echo "DB_URL=${{ secrets.DB_URL }}" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "CHATGPT_API_KEY=${{ secrets.CHATGPT_API_KEY }}" >> .env
-            
+
             # 새 컨테이너 실행
             docker run -d \
               --name fortune-app \
               -p 8080:8080 \
               --env-file .env \
               ${{ secrets.DOCKERHUB_USERNAME }}/fortune-telling:latest
-            
+
             # 사용하지 않는 이미지 정리
             docker image prune -f
